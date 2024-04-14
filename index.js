@@ -60,9 +60,16 @@ var showops = function(ops){
     ops.appendChild(newlink);
     log("Control button added.")
 };
+var direct_jump = function(){
+    if(document.title == "安全访问中心 - 洛谷"){
+        location.href = document.getElementById("url").innerText;
+        return;
+    }
+    setTimeout(direct_jump, 100);
+};
 
 (function() {
-    //'use strict';
+    'use strict';
 
     log('Luogu++ Started Loading!');
     var urlSplit = window.location.href.split("/");
@@ -74,6 +81,7 @@ var showops = function(ops){
     if (urlSplit[3] == "user") {
         waitdom(".introduction", showuser);
     }
+    direct_jump();
     waitdom(".ops", showops);
 
 })();
