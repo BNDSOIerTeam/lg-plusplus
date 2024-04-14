@@ -1,58 +1,79 @@
 // ==UserScript==
 // @name         Luogu++
 // @namespace    http://tampermonkey.net/
-// @version      2024-04-10
+// @version      2024-04-14
 // @description  一个为洛谷提供扩展功能的脚本插件。
-// @author       ztrztr
+// @author       BNDSOiersTeam
 // @match        https://www.luogu.com.cn/*
+// @match        https://www.luogu.com/*
 // @grant        none
 // ==/UserScript==
 
-(function() {
-    'use strict';
+var settings = {
+    'prefix': "[lg++]",
+    'logger': console.log,
+    // 'logger': alert,
+    'options_img': "<svg data-v-a97ae32a=\"\" aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"code\" role=\"img\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 512\" class=\"svg-inline--fa fa-code fa-w-20\"><path data-v-a97ae32a=\"\" fill=\"currentColor\" d=\"M278.9 511.5l-61-17.7c-6.4-1.8-10-8.5-8.2-14.9L346.2 8.7c1.8-6.4 8.5-10 14.9-8.2l61 17.7c6.4 1.8 10 8.5 8.2 14.9L293.8 503.3c-1.9 6.4-8.5 10.1-14.9 8.2zm-114-112.2l43.5-46.4c4.6-4.9 4.3-12.7-.8-17.2L117 256l90.6-79.7c5.1-4.5 5.5-12.3.8-17.2l-43.5-46.4c-4.5-4.8-12.1-5.1-17-.5L3.8 247.2c-5.1 4.7-5.1 12.8 0 17.5l144.1 135.1c4.9 4.6 12.5 4.4 17-.5zm327.2.6l144.1-135.1c5.1-4.7 5.1-12.8 0-17.5L492.1 112.1c-4.8-4.5-12.4-4.3-17 .5L431.6 159c-4.6 4.9-4.3 12.7.8 17.2L523 256l-90.6 79.7c-5.1 4.5-5.5 12.3-.8 17.2l43.5 46.4c4.5 4.9 12.1 5.1 17 .6z\" class=\"\"></path></svg>",
 
+};
+var log = function(msg){
+    settings.logger(settings.prefix + msg);
+};
+var preventPageBack = function() {
+    window.history.go = function(){ log("Page back blocked by luogu++"); }
+};
+var waitdom=function(dom, func){
+    var ele=document.querySelector(dom);
+    if(ele!=null)func(ele);
+    else setTimeout(function(){ waitdom(dom, func); }, 100);
+};
+var onloaded = function(func){
+    if(document.readyState == "complete")func();
+    else setTimeout(function(){ onloaded(func); }, 100);
+};
+
+var dashboard = function(){
+    document.querySelector('title').textContent = "Luogu++ 控制面板加载中...";
+    onloaded(function(){
+        log('Dashboard Loading');
+        document.getElementsByClassName('message')[0].innerHTML="控制面板正在开发中";
+        document.getElementsByClassName('lfe-h1')[0].innerHTML="Luogu++ 控制面板";
+        document.querySelector('title').textContent = "Luogu++ 控制面板";
+    });
+};
+var showuser = function(intro){
+    if(intro!=undefined && intro.previousElementSibling!=null && intro.previousElementSibling.innerText=='系统维护，该内容暂不可见。'){
+        log("Unlocked User Tab!");
+        intro.setAttribute("style", "");
+        intro.previousElementSibling.setAttribute("style", 'display:none');
+    }
+    setTimeout(showuser, 100, document.getElementsByClassName("introduction")[0]); // prevent it to come back again
+};
+var showops = function(ops){
+    var newlink = document.createElement("a");
+    newlink.setAttribute("data-v-0640126c", "");
+    newlink.setAttribute("data-v-53887c7a", "");
+    newlink.setAttribute("href", "/luogu-plusplus");
+    newlink.setAttribute("colorscheme", "none");
+    newlink.className = "color-none";
+    newlink.innerHTML = settings.options_img+"Luogu++ 设置";
+    ops.appendChild(newlink);
+    log("Control button added.")
+};
+
+(function() {
+    //'use strict';
+
+    log('Luogu++ Started Loading!');
     var urlSplit = window.location.href.split("/");
-    console.log("[lg++] [url] ", urlSplit);
-    //初始化
-    var _nav = document.querySelectorAll("[data-v-258e49ac]")[0];
-    var Flag = document.createElement("a")
-    Flag.style="border-radius: 5px; font-size: 13px; margin-bottom: 0px; padding: 0.5em 1em; font-weight: 400; line-height: 1.2; text-align: center; white-space: nowrap; background: green; border: 1px solid transparent; cursor: pointer; outline: 0px; appearance: none; user-select: none; transition: background-color 300ms ease-out 0s, border-color 300ms ease-out 0s; margin-right: 10px; box-shadow: rgba(0, 0, 0, 0.5) 0px 0px 10px; color: white;";
-    var _ = document.createElement("b");
-    _.innerHTML="Luogu++";
-    var _navhtml = _nav.innerHTML;
-    Flag.appendChild(_);
-    var divv = document.createElement("div")
-    divv.appendChild(Flag);
-//    Flag.innerHTML = "<a class=\"am-btn am-btn-success am-btn-sm\" style=\"border-radius: 5px; font-size: 13px; margin-bottom: 0px; padding: 0.5em 1em; font-weight: 400; line-height: 1.2; text-align: center; white-space: nowrap; background: green; border: 1px solid transparent; cursor: pointer; outline: 0px; appearance: none; user-select: none; transition: background-color 300ms ease-out 0s, border-color 300ms ease-out 0s; margin-right: 10px; box-shadow: rgba(0, 0, 0, 0.5) 0px 0px 10px; color: white;\"><b>LG++++</b></a>";
-    _nav.innerHTML = divv.innerHTML +_navhtml;
-    // Your code here...
-    var sidenav = document.querySelectorAll("[data-v-33633d7e]")[0];
-    sidenav.innerHTML += "<a data-v-0640126c=\"\" data-v-639bc19b=\"\" data-v-33633d7e=\"\" href=\"/luogu++/admin\" colorscheme=\"none\" class=\"color-none\" data-v-12f19ddc=\"\" style=\"color: inherit;\"><span data-v-639bc19b=\"\" data-v-0640126c=\"\" class=\"icon\"><svg data-v-639bc19b=\"\" data-v-0640126c=\"\" aria-hidden=\"true\" focusable=\"false\" data-prefix=\"fas\" data-icon=\"clipboard-list-check\" role=\"img\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 384 512\" class=\"svg-inline--fa fa-clipboard-list-check\"><path data-v-639bc19b=\"\" data-v-0640126c=\"\" fill=\"#94d66d\" d=\"M192 0c-41.8 0-77.4 26.7-90.5 64H64C28.7 64 0 92.7 0 128V448c0 35.3 28.7 64 64 64H320c35.3 0 64-28.7 64-64V128c0-35.3-28.7-64-64-64H282.5C269.4 26.7 233.8 0 192 0zm0 64a32 32 0 1 1 0 64 32 32 0 1 1 0-64zm-4.7 132.7c6.2 6.2 6.2 16.4 0 22.6l-64 64c-6.2 6.2-16.4 6.2-22.6 0l-32-32c-6.2-6.2-6.2-16.4 0-22.6s16.4-6.2 22.6 0L112 249.4l52.7-52.7c6.2-6.2 16.4-6.2 22.6 0zM192 272c0-8.8 7.2-16 16-16h96c8.8 0 16 7.2 16 16s-7.2 16-16 16H208c-8.8 0-16-7.2-16-16zm-16 80H304c8.8 0 16 7.2 16 16s-7.2 16-16 16H176c-8.8 0-16-7.2-16-16s7.2-16 16-16zM72 368a24 24 0 1 1 48 0 24 24 0 1 1 -48 0z\" class=\"\"></path></svg></span> <span data-v-639bc19b=\"\" data-v-0640126c=\"\" class=\"text\">后台</span></a>"
-    console.log("[lg++] load success!");
     //控制面板
-    if (urlSplit[3] == "luogu++" && urlSplit[4] == "admin") {
-        function preventPageBack() {
-            const state = { page: 1 };
-            const title = '';
-            const url = '#';
-            history.pushState(state, title, url);
-        }
-        // 当页面加载时或需要触发阻止页面回退的时候调用该函数
+    if (urlSplit[3] == "luogu-plusplus") {
         preventPageBack();
-        var txt1 = document.querySelectorAll("[data-v-f9624136]")[0];
-        txt1.innerHTML="控制面板未开发";
-        console.log("[lg ++] Panel load success!")
+        dashboard();
     }
     if (urlSplit[3] == "user") {
-            var intr = document.querySelectorAll("[data-v-e5ad98f0]")[0]
-            intr.style = ""
-        var __ = document.querySelectorAll("[data-v-429fbdfe]");
-        for (var i = 1; i < __.length; i ++) {
-            console.log(i, " : ", (__[i].innerHTML == "\n        系统维护，该内容暂不可见。\n      "))
-            if (__[i].innerHTML == "\n        系统维护，该内容暂不可见。\n      ") {
-                __[i].style = "display: none;";
-            }
-        }
+        waitdom(".introduction", showuser);
     }
-    //if (window.location)
+    waitdom(".ops", showops);
+
 })();

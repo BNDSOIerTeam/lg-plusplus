@@ -1,6 +1,8 @@
 # LG++
 一个为洛谷提供扩展功能的脚本插件。
 
+感谢 exlg 提供图标。
+
 # License
 
 Luogu PlusPlus is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
