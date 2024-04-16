@@ -1,3 +1,5 @@
+https://0f-0b.github.io/luogu-api-docs/
+
 # LG++
 一个为洛谷提供扩展功能的脚本插件。
 
