@@ -68,6 +68,7 @@ var direct_jump = function(){
     setTimeout(direct_jump, 100);
 };
 var punch = function(){
+    if(document.getElementsByName("csrf-token").length == 0)return;
     var csrf_token = document.getElementsByName("csrf-token")[0].getAttribute("content");
     fetch("https://www.luogu.com.cn/index/ajax_punch", {method: "POST", headers: {"x-csrf-token": csrf_token}}).then(function(data){ data.json().then(function(data){
         if(data.code==200)alert("Luogu++ 打卡成功！");
@@ -88,7 +89,12 @@ var punch = function(){
     if (urlSplit[3] == "user") {
         waitdom(".introduction", showuser);
     }
-    if(urlSplit[3].indexOf("discuss")!=-1 || urlSplit[3].indexOf("paste")!=-1)direct_jump();
+    if((urlSplit[3].indexOf("discuss")!=-1 || urlSplit[3] == "paste") && urlSplit[2] == "www.luogu.com.cn"){
+        direct_jump();
+    }
+    if(urlSplit[3] == "problem" && urlSplit[2] == "www.luogu.com"){
+        location.href = location.href.replace("luogu.com", "luogu.com.cn");
+    }
     waitdom(".ops", showops);
     punch();
 })();
