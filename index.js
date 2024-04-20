@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Luogu++
 // @namespace    http://tampermonkey.net/
-// @version      2024-04-14
+// @version      2024-04-20
 // @description  一个为洛谷提供扩展功能的脚本插件。
 // @author       BNDSOiersTeam
 // @match        https://www.luogu.com.cn/*
@@ -88,7 +88,7 @@ var punch = function(){
     if (urlSplit[3] == "user") {
         waitdom(".introduction", showuser);
     }
-    if(urlSplit[3].indexOf("discuss")!=-1)direct_jump();
+    if(urlSplit[3].indexOf("discuss")!=-1 || urlSplit[3].indexOf("paste")!=-1)direct_jump();
     waitdom(".ops", showops);
     punch();
 })();
