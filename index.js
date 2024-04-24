@@ -8,8 +8,12 @@
 // @match        https://www.luogu.com/*
 // @require      https://cdn.jsdelivr.net/npm/sweetalert2@11
 // @grant        GM_getValue
+// @grant        GM_xmlhttpRequest
 // @grant        GM_setValue
 // ==/UserScript==
+
+
+
 
 // ---------- Util Functions --------- \\
 var settings = {
@@ -35,11 +39,14 @@ var onloaded = function(func){
     else setTimeout(function(){ onloaded(func); }, 100);
 };
 var issameday = function(date){
+    return false;
+    /*
     var now = new Date();
     if(now.getYear()!=date.getYear())return false;
     if(now.getMonth()!=date.getMonth())return false;
     if(now.getDate()!=date.getDate())return false;
     return true;
+    */
 };
 
 
@@ -93,12 +100,44 @@ var punch = function(){
         if(data.code==200||data.code==201)GM_setValue("punch_date", new Date());
     }) });
 };
+function nbnhhsh_api(text) {
+    //text sample:"ztrztr,colinxu";
+    console.log({"text":text})
+    GM_xmlhttpRequest({
+        method: "post",
+        url: 'https://lab.magiconch.com/api/nbnhhsh/guess',
+        data: JSON.stringify({"text":text}),
+        headers: { "Content-Type": "application/json" },
+        onload: function(r) {
+            console.log(r.response);
 
+            var res = String(r.response);
+            var dataa = r.response;
+            console.log("{\"data\":" + dataa + "}")
+            dataa = JSON.parse("{\"data\":" + dataa + "}");
+            console.log(dataa)
+            var vv = String(dataa.data[0].trans);
+Swal.fire(vv)
+            // code
+        }
+    });
+
+}
+function nbnhhsh() {
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' && event.shiftKey) { // 如果按下的是回车键并且同时按下了Shift键
+            console.log("hi");
+            var text = prompt("请输入需要翻译的短语，用英文逗号分开，比如 114,514 或者 114");
+            nbnhhsh_api(text);
+        }
+    });
+}
 // ---------- Main --------- \\
 (function() {
     'use strict';
-
+nbnhhsh()
     log('Luogu++ Started Loading!');
+    log('[Luogu++] <能不能好好说话> 插件加载成功！')
     var urlSplit = window.location.href.split("/");
     //控制面板
     if (urlSplit[3] == "luogu-plusplus") {
