@@ -1,14 +1,17 @@
 // ==UserScript==
 // @name         Luogu++
 // @namespace    http://tampermonkey.net/
-// @version      2024-04-20
+// @version      2024-04-24
 // @description  一个为洛谷提供扩展功能的脚本插件。
 // @author       BNDSOiersTeam
 // @match        https://www.luogu.com.cn/*
 // @match        https://www.luogu.com/*
-// @grant        none
+// @require      https://cdn.jsdelivr.net/npm/sweetalert2@11
+// @grant        GM_getValue
+// @grant        GM_setValue
 // ==/UserScript==
 
+// ---------- Util Functions --------- \\
 var settings = {
     'prefix': "[lg++]",
     'logger': console.log,
@@ -31,7 +34,16 @@ var onloaded = function(func){
     if(document.readyState == "complete")func();
     else setTimeout(function(){ onloaded(func); }, 100);
 };
+var issameday = function(date){
+    var now = new Date();
+    if(now.getYear()!=date.getYear())return false;
+    if(now.getMonth()!=date.getMonth())return false;
+    if(now.getDate()!=date.getDate())return false;
+    return true;
+};
 
+
+// -------- Futures --------- \\
 var dashboard = function(){
     document.querySelector('title').textContent = "Luogu++ 控制面板加载中...";
     onloaded(function(){
@@ -69,13 +81,20 @@ var direct_jump = function(){
 };
 var punch = function(){
     if(document.getElementsByName("csrf-token").length == 0)return;
+    if(issameday(GM_getValue("punch_date", new Date(0))))return;
     var csrf_token = document.getElementsByName("csrf-token")[0].getAttribute("content");
     fetch("https://www.luogu.com.cn/index/ajax_punch", {method: "POST", headers: {"x-csrf-token": csrf_token}}).then(function(data){ data.json().then(function(data){
-        if(data.code==200)alert("Luogu++ 打卡成功！");
-        else log("打卡失败");
+        if(data.code==200){
+            if(document.getElementsByClassName("lg-punch").length!=0){
+                    document.getElementsByClassName("lg-punch")[0].innerHTML = data.more.html;
+            }
+            Swal.fire("Luogu++ 打卡成功！");
+        }
+        if(data.code==200||data.code==201)GM_setValue("punch_date", new Date());
     }) });
 };
 
+// ---------- Main --------- \\
 (function() {
     'use strict';
 
@@ -83,8 +102,12 @@ var punch = function(){
     var urlSplit = window.location.href.split("/");
     //控制面板
     if (urlSplit[3] == "luogu-plusplus") {
-        preventPageBack();
-        dashboard();
+        if (urlSplit[2] == "www.luogu.com"){
+            window.location.href = window.location.href.replace("luogu.com", "luogu.com.cn");
+        }else{
+            preventPageBack();
+            dashboard();
+        }
     }
     if (urlSplit[3] == "user") {
         waitdom(".introduction", showuser);
