@@ -1,18 +1,17 @@
 // ==UserScript==
 // @name         Luogu++
 // @namespace    http://tampermonkey.net/
-// @version      2024-04-24
+// @version      2024-04-25
 // @description  一个为洛谷提供扩展功能的脚本插件。
 // @author       BNDSOiersTeam
 // @match        https://www.luogu.com.cn/*
 // @match        https://www.luogu.com/*
+// @match        https://lgpp.fireddev.top/dashboard
 // @require      https://cdn.jsdelivr.net/npm/sweetalert2@11
 // @grant        GM_getValue
 // @grant        GM_xmlhttpRequest
 // @grant        GM_setValue
 // ==/UserScript==
-
-
 
 
 // ---------- Util Functions --------- \\
@@ -39,28 +38,17 @@ var onloaded = function(func){
     else setTimeout(function(){ onloaded(func); }, 100);
 };
 var issameday = function(date){
-    return false;
-    /*
     var now = new Date();
     if(now.getYear()!=date.getYear())return false;
     if(now.getMonth()!=date.getMonth())return false;
     if(now.getDate()!=date.getDate())return false;
     return true;
-    */
 };
 
 
 // -------- Futures --------- \\
-var dashboard = function(){
-    document.querySelector('title').textContent = "Luogu++ 控制面板加载中...";
-    onloaded(function(){
-        log('Dashboard Loading');
-        document.getElementsByClassName('message')[0].innerHTML="控制面板正在开发中";
-        document.getElementsByClassName('lfe-h1')[0].innerHTML="Luogu++ 控制面板";
-        document.querySelector('title').textContent = "Luogu++ 控制面板";
-    });
-};
 var showuser = function(intro){
+    if(GM_getValue("unlockuser", "enabled") != "enabled")return;
     if(intro!=undefined && intro.previousElementSibling!=null && intro.previousElementSibling.innerText=='系统维护，该内容暂不可见。'){
         log("Unlocked User Tab!");
         intro.setAttribute("style", "");
@@ -72,7 +60,7 @@ var showops = function(ops){
     var newlink = document.createElement("a");
     newlink.setAttribute("data-v-0640126c", "");
     newlink.setAttribute("data-v-53887c7a", "");
-    newlink.setAttribute("href", "/luogu-plusplus");
+    newlink.setAttribute("href", "https://lgpp.fireddev.top/dashboard");
     newlink.setAttribute("colorscheme", "none");
     newlink.className = "color-none";
     newlink.innerHTML = settings.options_img+"Luogu++ 设置";
@@ -80,6 +68,7 @@ var showops = function(ops){
     log("Control button added.")
 };
 var direct_jump = function(){
+    if(GM_getValue("directjump", "enabled") != "enabled")return;
     if(document.title == "安全访问中心 - 洛谷"){
         location.href = document.getElementById("url").innerText;
         return;
@@ -87,8 +76,9 @@ var direct_jump = function(){
     setTimeout(direct_jump, 100);
 };
 var punch = function(){
+    if(GM_getValue("autopunch", "enabled") != "enabled")return;
     if(document.getElementsByName("csrf-token").length == 0)return;
-    if(issameday(GM_getValue("punch_date", new Date(0))))return;
+    if(issameday(new Date(GM_getValue("punch_date", new Date(0).toISOString()))))return;
     var csrf_token = document.getElementsByName("csrf-token")[0].getAttribute("content");
     fetch("https://www.luogu.com.cn/index/ajax_punch", {method: "POST", headers: {"x-csrf-token": csrf_token}}).then(function(data){ data.json().then(function(data){
         if(data.code==200){
@@ -97,12 +87,10 @@ var punch = function(){
             }
             Swal.fire("Luogu++ 打卡成功！");
         }
-        if(data.code==200||data.code==201)GM_setValue("punch_date", new Date());
+        if(data.code==200||data.code==201)GM_setValue("punch_date", new Date().toISOString());
     }) });
 };
-function nbnhhsh_api(text) {
-    //text sample:"ztrztr,colinxu";
-    console.log({"text":text})
+function nbnhhsh_api(text){
     GM_xmlhttpRequest({
         method: "post",
         url: 'https://lab.magiconch.com/api/nbnhhsh/guess',
@@ -117,45 +105,65 @@ function nbnhhsh_api(text) {
             dataa = JSON.parse("{\"data\":" + dataa + "}");
             console.log(dataa)
             var vv = String(dataa.data[0].trans);
-Swal.fire(vv)
+            Swal.fire(vv)
             // code
         }
     });
 
-}
+};
 function nbnhhsh() {
+    if(GM_getValue("nbnhhsh", "enabled") != "enabled")return;
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Enter' && event.shiftKey) { // 如果按下的是回车键并且同时按下了Shift键
-            console.log("hi");
             var text = prompt("请输入需要翻译的短语，用英文逗号分开，比如 114,514 或者 114");
             nbnhhsh_api(text);
         }
     });
 }
+var dashboard = function(){
+    var checkbox = function(id, def){
+        if(def == undefined){
+            def = "enabled";
+        }
+        var e = document.getElementById(id);
+        if(GM_getValue(id, def) == "enabled"){
+            e.setAttribute("checked","");
+        }
+        e.addEventListener("input", function(evt){
+            if(e.hasAttribute("checked"))GM_setValue(id, "disabled");
+            else GM_setValue(id, "enabled");
+        });
+    }
+    checkbox("autopunch");
+    checkbox("directjump");
+    checkbox("unlockuser");
+    checkbox("nbnhhsh");
+    document.tmp = GM_getValue("punch_date", new Date(0).toISOString());
+    document.getElementById("lastpunch").setAttribute("placeholder", "最后一次自动打卡时间："+new Date(GM_getValue("punch_date", new Date(0).toISOString())).toISOString());
+    document.getElementById("placeholder").setAttribute("style", "display:none;");
+    document.getElementById("tabs").setAttribute("style", "");
+};
 // ---------- Main --------- \\
 (function() {
     'use strict';
-nbnhhsh()
     log('Luogu++ Started Loading!');
+    nbnhhsh();
     log('[Luogu++] <能不能好好说话> 插件加载成功！')
     var urlSplit = window.location.href.split("/");
     //控制面板
-    if (urlSplit[3] == "luogu-plusplus") {
-        if (urlSplit[2] == "www.luogu.com"){
-            window.location.href = window.location.href.replace("luogu.com", "luogu.com.cn");
-        }else{
-            preventPageBack();
-            dashboard();
+    if (urlSplit[2].indexOf("luogu")!=-1){
+        if(urlSplit[3] == "user") {
+            waitdom(".introduction", showuser);
+        }
+        if((urlSplit[3].indexOf("discuss")!=-1 || urlSplit[3] == "paste") && urlSplit[2] == "www.luogu.com.cn"){
+           direct_jump();
+        }
+        if(urlSplit[3] == "problem" && urlSplit[2] == "www.luogu.com"){
+            location.href = location.href.replace("luogu.com", "luogu.com.cn");
         }
     }
-    if (urlSplit[3] == "user") {
-        waitdom(".introduction", showuser);
-    }
-    if((urlSplit[3].indexOf("discuss")!=-1 || urlSplit[3] == "paste") && urlSplit[2] == "www.luogu.com.cn"){
-        direct_jump();
-    }
-    if(urlSplit[3] == "problem" && urlSplit[2] == "www.luogu.com"){
-        location.href = location.href.replace("luogu.com", "luogu.com.cn");
+    if(urlSplit[3] == "dashboard"){
+        dashboard();
     }
     waitdom(".ops", showops);
     punch();
