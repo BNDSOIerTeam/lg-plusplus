@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Luogu++
 // @namespace    http://tampermonkey.net/
-// @version      2024-04-25
+// @version      2024-04-24
 // @description  一个为洛谷提供扩展功能的脚本插件。
 // @author       BNDSOiersTeam
 // @match        https://www.luogu.com.cn/*
@@ -91,27 +91,35 @@ var punch = function(){
     }) });
 };
 function nbnhhsh_api(text){
+    console.log(text);
     GM_xmlhttpRequest({
+
         method: "post",
         url: 'https://lab.magiconch.com/api/nbnhhsh/guess',
         data: JSON.stringify({"text":text}),
         headers: { "Content-Type": "application/json" },
         onload: function(r) {
+            console.log("!@#$%3")
             console.log(r.response);
 
             var res = String(r.response);
             var dataa = r.response;
             console.log("{\"data\":" + dataa + "}")
             dataa = JSON.parse("{\"data\":" + dataa + "}");
-            console.log(dataa)
-            var vv = String(dataa.data[0].trans);
-            Swal.fire(vv)
-            // code
+            console.log(dataa);
+            var vv = "";
+            for (var i = 0; i < dataa.data.length; i ++) {
+                if (!dataa.data[i].trans) continue;
+                vv += "<p>" + dataa.data[i].trans + "</p>";
+            }
+//            var vv = String(dataa.data[0].trans);
+            Swal.fire({html: vv,});
+            // co
         }
     });
 
 };
-function nbnhhsh() {
+function nbnhhsh_old() {
     if(GM_getValue("nbnhhsh", "enabled") != "enabled")return;
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Enter' && event.shiftKey) { // 如果按下的是回车键并且同时按下了Shift键
@@ -119,6 +127,17 @@ function nbnhhsh() {
             nbnhhsh_api(text);
         }
     });
+}
+var lasttext = "";
+function nbnhhsh() {
+    document.onmouseup = function () {
+        var sel_text = window.getSelection().toString();
+        if (sel_text == lasttext) return;
+        else lasttext = sel_text;
+        if (sel_text) {
+            nbnhhsh_api(sel_text);
+        }
+    };
 }
 var dashboard = function(){
     var checkbox = function(id, def){
@@ -147,7 +166,7 @@ var dashboard = function(){
 (function() {
     'use strict';
     log('Luogu++ Started Loading!');
-    nbnhhsh();
+    nbnhhsh_old();
     log('[Luogu++] <能不能好好说话> 插件加载成功！')
     var urlSplit = window.location.href.split("/");
     //控制面板
