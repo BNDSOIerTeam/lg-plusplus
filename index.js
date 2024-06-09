@@ -1,13 +1,14 @@
 // ==UserScript==
 // @name         Luogu++
 // @namespace    http://tampermonkey.net/
-// @version      2024-04-24
+// @version      2024-06-09
 // @description  一个为洛谷提供扩展功能的脚本插件。
 // @author       BNDSOiersTeam
 // @match        https://www.luogu.com.cn/*
 // @match        https://www.luogu.com/*
 // @match        https://lgpp.fireddev.top/dashboard
 // @require      https://cdn.jsdelivr.net/npm/sweetalert2@11
+// @require      https://cdn.jsdelivr.net/gh/colxi/getEventListeners/src/getEventListeners.min.js
 // @grant        GM_getValue
 // @grant        GM_xmlhttpRequest
 // @grant        GM_setValue
@@ -90,6 +91,28 @@ var punch = function(){
         if(data.code==200||data.code==201)GM_setValue("punch_date", new Date().toISOString());
     }) });
 };
+var antijc = function(callback){
+    return function(evt){
+        if(GM_getValue("antijc", "enabled") != "enabled")return;
+        var flag=false;
+        document.querySelectorAll("span[role=presentation]").forEach((elem)=>{
+            if(!flag && (elem.innerHTML.toLowerCase().indexOf("ioi") != -1 || elem.innerHTML.toLowerCase().indexOf("sb") != -1)){
+                Swal.fire({
+                    title: "检测到正在发送的内容可能存在与机惨有关，请手动确认。",
+                    showCancelButton: true,
+                    confirmButtonText: "仍要发送",
+                    cancelButtonText: "取消发送"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        callback(evt);
+                    }
+                    flag=true;
+                });
+            };
+        });
+        if(!flag)callback(evt);
+    };
+};
 function nbnhhsh_api(text){
     console.log(text);
     GM_xmlhttpRequest({
@@ -138,7 +161,7 @@ function nbnhhsh() {
             nbnhhsh_api(sel_text);
         }
     };
-}
+};
 var dashboard = function(){
     var checkbox = function(id, def){
         if(def == undefined){
@@ -157,8 +180,11 @@ var dashboard = function(){
     checkbox("directjump");
     checkbox("unlockuser");
     checkbox("nbnhhsh");
-    document.tmp = GM_getValue("punch_date", new Date(0).toISOString());
+    checkbox("timer");
+    checkbox("cleandiscuss");
+    checkbox("antijc");
     document.getElementById("lastpunch").setAttribute("placeholder", "最后一次自动打卡时间："+new Date(GM_getValue("punch_date", new Date(0).toISOString())).toISOString());
+    document.getElementById("lastpunch").setAttribute("helper", "数据加载成功！");
     document.getElementById("placeholder").setAttribute("style", "display:none;");
     document.getElementById("tabs").setAttribute("style", "");
 };
@@ -169,7 +195,7 @@ var dashboard = function(){
     nbnhhsh_old();
     log('[Luogu++] <能不能好好说话> 插件加载成功！')
     var urlSplit = window.location.href.split("/");
-    //控制面板
+
     if (urlSplit[2].indexOf("luogu")!=-1){
         if(urlSplit[3] == "user") {
             waitdom(".introduction", showuser);
@@ -179,6 +205,15 @@ var dashboard = function(){
         }
         if(urlSplit[3] == "problem" && urlSplit[2] == "www.luogu.com"){
             location.href = location.href.replace("luogu.com", "luogu.com.cn");
+        }
+        if(urlSplit[4].indexOf("new")!=-1){
+            console.log('hit!');
+            waitdom("#app > div.main-container > main > div > section.main > div > div:nth-child(6) > button", function(elem){
+                var listener = elem.getEventListeners().click[0];
+                console.log(listener);
+                elem.removeEventListener(listener.type, listener.listener, listener.useCapture );
+                elem.addEventListener('click', antijc(listener.listener));
+            });
         }
     }
     if(urlSplit[3] == "dashboard"){
