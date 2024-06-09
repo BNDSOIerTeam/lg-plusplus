@@ -93,12 +93,16 @@ var punch = function(){
 };
 var antijc = function(callback){
     return function(evt){
-        if(GM_getValue("antijc", "enabled") != "enabled")return;
+        if(GM_getValue("antijc", "enabled") != "enabled"){
+            callback(evt);
+            return;
+        }
         var flag=false;
         document.querySelectorAll("span[role=presentation]").forEach((elem)=>{
-            if(!flag && (elem.innerHTML.toLowerCase().indexOf("ioi") != -1 || elem.innerHTML.toLowerCase().indexOf("sb") != -1)){
+            if(!flag && (elem.innerHTML.toLowerCase().indexOf("ioi") != -1 || elem.innerHTML.toLowerCase().indexOf("sb") != -1 || elem.innerHTML.toLowerCase().indexOf("nmd")!=-1 )){
+                flag=true;
                 Swal.fire({
-                    title: "检测到正在发送的内容可能存在与机惨有关，请手动确认。",
+                    title: "检测到正在发送的内容可能与机惨有关，请手动确认。",
                     showCancelButton: true,
                     confirmButtonText: "仍要发送",
                     cancelButtonText: "取消发送"
@@ -106,7 +110,6 @@ var antijc = function(callback){
                     if (result.isConfirmed) {
                         callback(evt);
                     }
-                    flag=true;
                 });
             };
         });
@@ -207,10 +210,14 @@ var dashboard = function(){
             location.href = location.href.replace("luogu.com", "luogu.com.cn");
         }
         if(urlSplit[4].indexOf("new")!=-1){
-            console.log('hit!');
             waitdom("#app > div.main-container > main > div > section.main > div > div:nth-child(6) > button", function(elem){
                 var listener = elem.getEventListeners().click[0];
-                console.log(listener);
+                elem.removeEventListener(listener.type, listener.listener, listener.useCapture );
+                elem.addEventListener('click', antijc(listener.listener));
+            });
+        }else if(urlSplit[3] == 'discuss'){
+            waitdom("#app > div.main-container > main > div > section.main > div:nth-child(3) > div > div.reply-bottom > button", function(elem){
+                var listener = elem.getEventListeners().click[0];
                 elem.removeEventListener(listener.type, listener.listener, listener.useCapture );
                 elem.addEventListener('click', antijc(listener.listener));
             });
