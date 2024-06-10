@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Luogu++
 // @namespace    http://tampermonkey.net/
-// @version      2024-06-09
+// @version      2024-06-09-hotfix
 // @description  一个为洛谷提供扩展功能的脚本插件。
 // @author       BNDSOiersTeam
 // @match        https://www.luogu.com.cn/*
@@ -188,6 +188,7 @@ var dashboard = function(){
     checkbox("antijc");
     document.getElementById("lastpunch").setAttribute("placeholder", "最后一次自动打卡时间："+new Date(GM_getValue("punch_date", new Date(0).toISOString())).toISOString());
     document.getElementById("lastpunch").setAttribute("helper", "数据加载成功！");
+    document.getElementById("lasttimerupdate").setAttribute("helper", "您使用的 Luogu++ 版本不支持此功能");
     document.getElementById("placeholder").setAttribute("style", "display:none;");
     document.getElementById("tabs").setAttribute("style", "");
 };
@@ -196,26 +197,27 @@ var dashboard = function(){
     'use strict';
     log('Luogu++ Started Loading!');
     nbnhhsh_old();
-    log('[Luogu++] <能不能好好说话> 插件加载成功！')
-    var urlSplit = window.location.href.split("/");
-
-    if (urlSplit[2].indexOf("luogu")!=-1){
-        if(urlSplit[3] == "user") {
+    log('<能不能好好说话> 插件加载成功！')
+    var urlSplit = window.location.href.split("/").splice(2,);
+    log(urlSplit);
+    urlSplit[urlSplit.length-1]=urlSplit[urlSplit.length-1].split('?')[0];
+    if (urlSplit[0].indexOf("luogu")!=-1){
+        if(urlSplit[1] == "user") {
             waitdom(".introduction", showuser);
         }
-        if((urlSplit[3].indexOf("discuss")!=-1 || urlSplit[3] == "paste") && urlSplit[2] == "www.luogu.com.cn"){
+        if((urlSplit[1] == "discuss" || urlSplit[1] == "paste") && urlSplit[0] == "www.luogu.com.cn"){
            direct_jump();
         }
-        if(urlSplit[3] == "problem" && urlSplit[2] == "www.luogu.com"){
+        if(urlSplit[2] == "problem" && urlSplit[1] == "www.luogu.com"){
             location.href = location.href.replace("luogu.com", "luogu.com.cn");
         }
-        if(urlSplit[4].indexOf("new")!=-1){
+        if(urlSplit[2] == "new"){
             waitdom("#app > div.main-container > main > div > section.main > div > div:nth-child(6) > button", function(elem){
                 var listener = elem.getEventListeners().click[0];
                 elem.removeEventListener(listener.type, listener.listener, listener.useCapture );
                 elem.addEventListener('click', antijc(listener.listener));
             });
-        }else if(urlSplit[3] == 'discuss'){
+        }else if(urlSplit[1] == 'discuss'){
             waitdom("#app > div.main-container > main > div > section.main > div:nth-child(3) > div > div.reply-bottom > button", function(elem){
                 var listener = elem.getEventListeners().click[0];
                 elem.removeEventListener(listener.type, listener.listener, listener.useCapture );
@@ -223,7 +225,7 @@ var dashboard = function(){
             });
         }
     }
-    if(urlSplit[3] == "dashboard"){
+    if(urlSplit[1] == "dashboard"){
         dashboard();
     }
     waitdom(".ops", showops);
