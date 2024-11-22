@@ -100,7 +100,7 @@ var antijc = function(callback){
             return;
         }
         var flag=false;
-        document.querySelectorAll("span[role=presentation]").forEach((elem)=>{
+        document.querySelectorAll("div[class~=cm-line]").forEach((elem)=>{
             if(!flag && (elem.innerHTML.toLowerCase().indexOf("ioi") != -1 || elem.innerHTML.toLowerCase().indexOf("sb") != -1 || elem.innerHTML.toLowerCase().indexOf("nmd")!=-1 )){
                 flag=true;
                 Swal.fire({
@@ -228,13 +228,13 @@ var debug_dashboard = function(){
             location.href = location.href.replace("luogu.com", "luogu.com.cn");
         }
         if(urlSplit[2] == "new"){
-            waitdom("#app > div.main-container > main > div > section.main > div > div:nth-child(6) > button", function(elem){
+            waitdom("#app > div.main-container.lside-bar > main > div > div > div.main > div > div:nth-child(6) > button", function(elem){
                 var listener = elem.getEventListeners().click[0];
                 elem.removeEventListener(listener.type, listener.listener, listener.useCapture );
                 elem.addEventListener('click', antijc(listener.listener));
             });
         }else if(urlSplit[1] == 'discuss'){
-            waitdom("#app > div.main-container > main > div > section.main > div:nth-child(3) > div > div.reply-bottom > button", function(elem){
+            waitdom("#app > div.main-container.lside-bar > main > div > div > div.main > div.l-card.reply-editor > div.reply-bottom > button", function(elem){
                 var listener = elem.getEventListeners().click[0];
                 elem.removeEventListener(listener.type, listener.listener, listener.useCapture );
                 elem.addEventListener('click', antijc(listener.listener));
