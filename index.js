@@ -63,7 +63,7 @@ var showops = function(ops){
     var newlink = document.createElement("a");
     newlink.setAttribute("data-v-0640126c", "");
     newlink.setAttribute("data-v-53887c7a", "");
-    newlink.setAttribute("href", "https://lgpp.fireddev.top/dashboard");
+    newlink.setAttribute("href", "https://lgpp.bnds.top/dashboard");
     newlink.setAttribute("colorscheme", "none");
     newlink.className = "color-none";
     newlink.innerHTML = settings.options_img+"Luogu++ 设置";
