@@ -6,7 +6,7 @@
 // @author       BNDSOiersTeam
 // @match        https://www.luogu.com.cn/*
 // @match        https://www.luogu.com/*
-// @match        https://lgpp.fireddev.top/*
+// @match        https://lgpp.bnds.top/*
 // @require      https://cdn.jsdelivr.net/npm/sweetalert2@11
 // @require      https://cdn.jsdelivr.net/gh/colxi/getEventListeners/src/getEventListeners.min.js
 // @grant        GM_getValue
