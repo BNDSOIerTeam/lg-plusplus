@@ -1,13 +1,6 @@
-请在括号后认领 todo：
-
-- [ ] 基于剪贴板的账号系统（认领人：Colinxu2020）
-- [ ] 后端服务器（认领人：）
-- [x] 防 JC（认领人：~~Ztrztr~~Colinxu2020）
-- [X] 翻译缩写（认领人：Ztrztr）
-- [ ] 从备份站爬取已删除帖子（认领人：ztrztr）
-- [ ] 题目评分评级（认领人：）
-- [ ] 自动估算题目评级（认领人：Colinxu2020）
-- [x] 洛谷国际站直接跳转（认领人：Colinxu2020）
-- [x] 显示用户主页（认领人：Colinxu2020）
-- [x] 自动打卡（认领人：Colinxu2020）
-- [x] 控制面板（认领人：Colinxu2020
+- [x] 防 JC（done by Colinxu2020）
+- [X] 翻译缩写（done by Ztrztr）
+- [x] 洛谷国际站直接跳转（done by Colinxu2020）
+- [x] 显示用户主页（done by Colinxu2020）
+- [x] 自动打卡（done by Colinxu2020）
+- [x] 控制面板（done by Colinxu2020
